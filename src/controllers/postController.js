@@ -1,4 +1,5 @@
-const Post = require("../models/Post");
+const Post = require("../models/post");
+const Category = require("../models/category");
 const asyncHandler = require("../middleware/asyncHandler");
 const AppError = require("../utils/AppError");
 
@@ -11,7 +12,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
 });
 
 const getPost = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.postId);
+  const post = await Post.findById(req.params.postId).populate("category");
 
   if (!post) {
     throw new AppError("Post not found", 404);
@@ -27,15 +28,24 @@ const getPost = asyncHandler(async (req, res) => {
 });
 
 const createPost = asyncHandler(async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, category } = req.body;
 
   if (!title || !content) {
     throw new AppError("Title and content are required", 400);
   }
 
+  if (category) {
+    const categoryExists = await Category.findById(category);
+
+    if (!categoryExists) {
+      throw new AppError("Category not found", 404);
+    }
+  }
+
   const newPost = await Post.create({
     title,
     content,
+    category,
   });
 
   res.status(201).json({
