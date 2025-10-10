@@ -1,6 +1,7 @@
 const express = require("express");
 const postRouter = require("./routes/postRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
+const authRouter = require("./routes/authRoutes");
 const errorHandler = require("./middleware/errorHandler");
 const AppError = require("./utils/AppError");
 
@@ -18,6 +19,7 @@ app.use((req, res, next) => {
 });
 app.use("/api/posts", postRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/auth", authRouter);
 
 app.use((req, res, next) => {
   next(new AppError(`Route ${req.originalUrl} not found`, 404));
