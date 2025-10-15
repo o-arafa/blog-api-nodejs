@@ -1,4 +1,4 @@
-const Category = require("../models/category");
+const Category = require("../models/Category");
 const asyncHandler = require("../middleware/asyncHandler");
 const AppError = require("../utils/AppError");
 
@@ -17,7 +17,6 @@ const getCategory = asyncHandler(async (req, res) => {
     throw new AppError("Category not found", 404);
   }
 
-  category.views += 1;
   await category.save();
 
   res.status(200).json({

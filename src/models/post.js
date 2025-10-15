@@ -17,6 +17,11 @@ const postSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     views: {
       type: Number,
       default: 0,

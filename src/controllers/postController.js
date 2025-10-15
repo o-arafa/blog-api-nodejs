@@ -1,5 +1,6 @@
-const Post = require("../models/post");
-const Category = require("../models/category");
+const Post = require("../models/Post");
+const Category = require("../models/Category");
+const User = require("../models/User");
 const asyncHandler = require("../middleware/asyncHandler");
 const AppError = require("../utils/AppError");
 
@@ -46,6 +47,7 @@ const createPost = asyncHandler(async (req, res) => {
     title,
     content,
     category,
+    author: req.user.id,
   });
 
   res.status(201).json({
@@ -56,10 +58,6 @@ const createPost = asyncHandler(async (req, res) => {
 });
 
 const updatePost = asyncHandler(async (req, res) => {
-  if (!req.body || Object.keys(req.body).length === 0) {
-    throw new AppError("Please provide at least one field to update", 400);
-  }
-
   const post = await Post.findByIdAndUpdate(req.params.postId, req.body, {
     new: true,
     runValidators: true,
@@ -67,6 +65,14 @@ const updatePost = asyncHandler(async (req, res) => {
 
   if (!post) {
     throw new AppError("Post not found", 404);
+  }
+
+  if (post.author.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new AppError("You are not authorized to perform this action", 403);
+  }
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    throw new AppError("Please provide at least one field to update", 400);
   }
 
   res.status(200).json({
@@ -78,9 +84,15 @@ const updatePost = asyncHandler(async (req, res) => {
 
 const deletePost = asyncHandler(async (req, res) => {
   const post = await Post.findById(req.params.postId);
+
   if (!post) {
     throw new AppError("Post not found", 404);
   }
+
+  if (post.author.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new AppError("You are not authorized to perform this action", 403);
+  }
+
   await post.deleteOne();
 
   res.status(200).json({
