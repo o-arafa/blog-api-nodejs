@@ -29,7 +29,7 @@ const getPost = asyncHandler(async (req, res) => {
 });
 
 const createPost = asyncHandler(async (req, res) => {
-  const { title, content, category } = req.body;
+  const { title, content, category } = req.validatedBody;
 
   if (!title || !content) {
     throw new AppError("Title and content are required", 400);

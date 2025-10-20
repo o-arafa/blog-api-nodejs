@@ -31,6 +31,8 @@ const protect = asyncHandler(async (req, res, next) => {
 
 const authorize = (...roles) => {
   return (req, res, next) => {
+    console.log("req", req.user);
+    console.log("role ", roles);
     if (!roles.includes(req.user.role)) {
       throw new AppError(
         "You do not have permission to perform this action",

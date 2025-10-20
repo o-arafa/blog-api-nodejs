@@ -4,7 +4,8 @@ const { generateToken } = require("../utils/jwt");
 const AppError = require("../utils/AppError");
 
 const register = asyncHandler(async (req, res) => {
-  const { username, email, password, firstName, lastName } = req.body;
+  const { username, email, password, firstName, lastName, role } =
+    req.validatedBody;
 
   if (!username || !email || !password || !firstName || !lastName) {
     throw new AppError("All fields are required", 400);
@@ -24,6 +25,7 @@ const register = asyncHandler(async (req, res) => {
     password,
     firstName,
     lastName,
+    role,
   });
 
   user.password = undefined;
