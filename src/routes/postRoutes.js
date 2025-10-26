@@ -6,17 +6,27 @@ const {
   updatePostSchema,
 } = require("../validations/post.validation");
 const validate = require("../middleware/validate");
-const { protect } = require("../middleware/auth");
+const { protect, authorize } = require("../middleware/auth");
 
 router
   .route("/")
   .get(postController.getAllPosts)
-  .post(protect, validate(createPostSchema), postController.createPost);
+  .post(
+    protect,
+    authorize("author", "admin"),
+    validate(createPostSchema),
+    postController.createPost
+  );
 
 router
   .route("/:postId")
   .get(postController.getPost)
-  .put(protect, validate(updatePostSchema), postController.updatePost)
-  .delete(protect, postController.deletePost);
+  .put(
+    protect,
+    authorize("author", "admin"),
+    validate(updatePostSchema),
+    postController.updatePost
+  )
+  .delete(protect, authorize("author", "admin"), postController.deletePost);
 
 module.exports = router;

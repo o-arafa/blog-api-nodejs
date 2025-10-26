@@ -17,8 +17,6 @@ const getCategory = asyncHandler(async (req, res) => {
     throw new AppError("Category not found", 404);
   }
 
-  await category.save();
-
   res.status(200).json({
     success: true,
     data: category,
@@ -27,7 +25,6 @@ const getCategory = asyncHandler(async (req, res) => {
 
 const createCategory = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
-  console.log(req.body);
   if (!name || !description) {
     throw new AppError("name and description are required", 400);
   }

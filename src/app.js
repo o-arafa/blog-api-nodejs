@@ -13,8 +13,6 @@ app.get("/", (req, res) => {
 });
 
 app.use((req, res, next) => {
-  console.log("req.body:", req.body);
-  console.log("Content-Type:", req.headers["content-type"]);
   next();
 });
 app.use("/api/posts", postRouter);

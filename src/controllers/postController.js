@@ -5,7 +5,13 @@ const asyncHandler = require("../middleware/asyncHandler");
 const AppError = require("../utils/AppError");
 
 const getAllPosts = asyncHandler(async (req, res) => {
-  const posts = await Post.find();
+  const query = req.query;
+
+  const limit = query.limit || 5;
+  const page = query.page || 1;
+  const skip = (page - 1) * limit;
+
+  const posts = await Post.find().limit(limit).skip(skip);
   res.status(200).json({
     success: true,
     data: posts,
@@ -30,10 +36,6 @@ const getPost = asyncHandler(async (req, res) => {
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, content, category } = req.validatedBody;
-
-  if (!title || !content) {
-    throw new AppError("Title and content are required", 400);
-  }
 
   if (category) {
     const categoryExists = await Category.findById(category);
