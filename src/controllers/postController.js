@@ -11,7 +11,20 @@ const getAllPosts = asyncHandler(async (req, res) => {
   const page = query.page || 1;
   const skip = (page - 1) * limit;
 
-  const posts = await Post.find().limit(limit).skip(skip);
+  let sortBy = "-createdAt";
+  if (query.sort) {
+    sortBy = query.sort;
+  }
+  const filter = {};
+
+  if (query.search) {
+    filter.$or = [
+      { title: { $regex: query.search, $options: "i" } },
+      { content: { $regex: query.search, $options: "i" } },
+    ];
+  }
+
+  const posts = await Post.find(filter).sort(sortBy).limit(limit).skip(skip);
   res.status(200).json({
     success: true,
     data: posts,
