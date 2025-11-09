@@ -8,6 +8,9 @@ const {
 const validate = require("../middleware/validate");
 const { protect, authorize } = require("../middleware/auth");
 
+router.post("/:postId", protect, postController.likePost);
+router.get("/:postId/likes", protect, postController.getPostLikes);
+
 router
   .route("/")
   .get(postController.getAllPosts)

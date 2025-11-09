@@ -116,6 +116,62 @@ const deletePost = asyncHandler(async (req, res) => {
     data: {},
   });
 });
+const likePost = asyncHandler(async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.user.id;
+
+  const post = await Post.findById(postId);
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+  const likeIndex = post.likes.indexOf(userId);
+
+  if (likeIndex === -1) {
+    post.likes.push(userId);
+    post.likesCount += 1;
+
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      message: "post liked",
+      data: {
+        likesCount: post.likesCount,
+        isLiked: true,
+      },
+    });
+  } else {
+    post.likes.splice(likeIndex, 1);
+    post.likesCount -= 1;
+
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      message: "post unliked",
+      data: {
+        likesCount: post.likesCount,
+        isLiked: false,
+      },
+    });
+  }
+});
+
+const getPostLikes = asyncHandler(async (req, res, next) => {
+  const { postId } = req.params;
+
+  const post = await Post.findById(postId).populate("likes", "username");
+
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    count: post.likes.length,
+    data: post.likes,
+  });
+});
 
 module.exports = {
   getAllPosts,
@@ -123,4 +179,6 @@ module.exports = {
   createPost,
   updatePost,
   deletePost,
+  likePost,
+  getPostLikes,
 };
