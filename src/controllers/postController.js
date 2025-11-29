@@ -3,6 +3,9 @@ const Category = require("../models/Category");
 const User = require("../models/User");
 const asyncHandler = require("../middleware/asyncHandler");
 const AppError = require("../utils/AppError");
+const sharp = require("sharp");
+const fs = require("fs");
+const path = require("path");
 
 const getAllPosts = asyncHandler(async (req, res) => {
   const query = req.query;
@@ -63,7 +66,15 @@ const createPost = asyncHandler(async (req, res) => {
     content,
     category,
     author: req.user.id,
+    image: req.body.image || null,
   });
+  if (newPost.image) {
+    newPost.imageUrl = `${req.protocol}://${req.get("host")}/uploads/posts/${
+      newPost.image
+    }`;
+  }
+
+  console.log(req.file);
 
   res.status(201).json({
     success: true,
@@ -106,6 +117,19 @@ const deletePost = asyncHandler(async (req, res) => {
 
   if (post.author.toString() !== req.user.id && req.user.role !== "admin") {
     throw new AppError("You are not authorized to perform this action", 403);
+  }
+
+  if (post.image) {
+    const imagePath = path.join(
+      __dirname,
+      "..",
+      "uploads",
+      "posts",
+      post.image
+    );
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
   }
 
   await post.deleteOne();
@@ -173,6 +197,23 @@ const getPostLikes = asyncHandler(async (req, res, next) => {
   });
 });
 
+const resizePostImage = async (req, res, next) => {
+  if (!req.file) return next();
+
+  const filename = `post-${Date.now()}.jpeg`;
+  req.body.image = filename;
+  const filePath = path.join(__dirname, "..", "uploads", "posts", filename);
+
+  console.log("Saving to:", filePath);
+  await sharp(req.file.buffer)
+    .resize(800, 500)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(path.join(__dirname, "..", "uploads", "posts", filename));
+
+  next();
+};
+
 module.exports = {
   getAllPosts,
   getPost,
@@ -181,4 +222,5 @@ module.exports = {
   deletePost,
   likePost,
   getPostLikes,
+  resizePostImage,
 };

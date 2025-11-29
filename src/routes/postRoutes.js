@@ -7,6 +7,7 @@ const {
 } = require("../validations/post.validation");
 const validate = require("../middleware/validate");
 const { protect, authorize } = require("../middleware/auth");
+const upload = require("../middleware/upload");
 
 router.post("/:postId", protect, postController.likePost);
 router.get("/:postId/likes", protect, postController.getPostLikes);
@@ -16,6 +17,8 @@ router
   .get(postController.getAllPosts)
   .post(
     protect,
+    upload.single("image"),
+    postController.resizePostImage,
     authorize("author", "admin"),
     validate(createPostSchema),
     postController.createPost
