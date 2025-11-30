@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const postRouter = require("./routes/postRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
 const authRouter = require("./routes/authRoutes");
@@ -7,6 +8,7 @@ const AppError = require("./utils/AppError");
 
 const app = express();
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
   res.json({ message: "Blog API is working!" });

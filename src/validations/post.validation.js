@@ -16,6 +16,7 @@ const createPostSchema = Joi.object({
     "string.max": "Content cannot exceed 1000 characters",
     "any.required": "Content is required",
   }),
+  image: Joi.string().optional(),
 
   category: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
@@ -41,6 +42,7 @@ const updatePostSchema = Joi.object({
     "string.min": "Content must be at least 10 characters long",
     "string.max": "Content cannot exceed 1000 characters",
   }),
+  image: Joi.string().optional(),
 
   category: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
