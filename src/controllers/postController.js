@@ -27,7 +27,17 @@ const getAllPosts = asyncHandler(async (req, res) => {
     ];
   }
 
-  const posts = await Post.find(filter).sort(sortBy).limit(limit).skip(skip);
+  if (query.category) {
+    filter.category = query.category;
+  }
+
+  const posts = await Post.find(filter)
+    .populate("category", "name")
+    .populate("author", "username")
+    .populate("likes", "username")
+    .sort(sortBy)
+    .limit(limit)
+    .skip(skip);
   res.status(200).json({
     success: true,
     data: posts,
@@ -35,7 +45,10 @@ const getAllPosts = asyncHandler(async (req, res) => {
 });
 
 const getPost = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.postId).populate("category");
+  const post = await Post.findById(req.params.postId)
+    .populate("category", "name")
+    .populate("author", "username")
+    .populate("likes", "username");
 
   if (!post) {
     throw new AppError("Post not found", 404);
